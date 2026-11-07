@@ -30,9 +30,9 @@
 
 ## 快速开始
 
-仓库提供源码；可按下文构建生成运行包。
+从 [GitHub Releases](https://github.com/binbinku/BKDayzModDownloader/releases/latest) 下载 `BKDayzModDownloader-win-x64.zip`，解压到可写目录。请下载该程序压缩包；GitHub 自动生成的 `Source code` 附件仅包含源码。
 
-1. 将发布生成的 `publish/win-x64` **整个文件夹**复制到目标机器的可写目录，保留其中的 `Engine` 子目录。
+1. 保留解压后的**整个文件夹**及其中的 `Engine` 子目录，不要只复制主程序 EXE。如果自行构建，对应目录为 `publish/win-x64`。
 2. 安装 .NET 10 Desktop Runtime x64，双击 `BKDayzModDownloader.exe`。也可运行 `Start.bat` 检查运行时。
 3. 输入自己的 Steam 账号，按提示完成 Steam Guard 验证或手机确认。
 4. 登录后，在右上角“下载设置”中选择保存目录。
