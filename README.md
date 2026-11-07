@@ -1,68 +1,157 @@
 # BK DayZ Mod Downloader
 
-WPF 桌面客户端下载 DayZ（App ID `221100`）创意工坊模组，基于 DepotDownloader 3.4.0 源码适配。.NET 10 x64，界面与下载引擎共用一套运行时。
+面向 DayZ 服务器管理员的 Windows 创意工坊模组下载工具。通过图形界面登录 Steam、管理下载队列、查看进度和实时速度，无需安装 Steam 客户端或 DayZ 游戏客户端。
 
-## 运行
+使用 **WPF / .NET 10** 构建，下载引擎基于 [DepotDownloader](https://github.com/SteamRE/DepotDownloader) 3.4.0，面向 DayZ（App ID `221100`）创意工坊。
 
-1. 将 `publish/win-x64` 整个文件夹复制到目标电脑的可写目录。
-2. 安装 **.NET 10 Desktop Runtime x64**：<https://dotnet.microsoft.com/en-us/download/dotnet/10.0>。服务器不需要 SDK、Steam 客户端或 DayZ 游戏客户端。
-3. 双击 `BKDayzModDownloader.exe`，或运行附带的 `Start.bat` 检查运行时。
-4. 输入自己的 Steam 账号并登录，按提示输入验证码或在 Steam 手机应用中批准登录。
-5. 登录成功后点击右下角悬浮 `＋`，输入工坊 Mod ID（例如 `1559212036`）或 Steam 工坊链接，选择“加入队列”或“添加并下载”。保存目录在右上角“下载设置”中修改。
+> 原创界面、通用模块与测试代码采用 MIT；下载引擎及整合分发包保留 GPL-2.0 授权。具体范围见 [许可证说明](LICENSING.md)。
 
-## 下载界面
+## 功能
 
-- 队列以 Geist 风格的任务列表显示：模组名称下方显示等宽工坊 ID；状态标签、进度与速度各自对齐。未开始的任务不显示空进度条。
-- 每行右侧提供下载/继续、暂停、取消、删除图标。悬停查看操作说明。删除仅从队列移除，不删除磁盘上的模组文件；正在下载的任务会先取消传输，再移除。
-- 最底部只保留开始下载、暂停下载、取消下载、删除四个批量操作，勾选图标代表作用于勾选任务。导入清单位于队列右上角；右下角保留“打开下载目录”。目录不存在时会先创建，下载过程中也可使用。
-- 右上角“日志”切换右侧黑底绿字日志面板，默认收起；“下载设置”中调整保存目录、校验和并发。
-- 无系统标题栏，可拖动窗口顶部、调整窗口大小，使用自定义最小化、最大化/还原和关闭按钮。正常窗口四角圆角，最大化使用直角。
-- 右上角可切换亮色/暗色并保存选择，日志面板始终黑底绿字。视觉参考 Geist 的中性色、细边框和紧凑排版，使用系统字体，无额外浏览器依赖。
+- **Steam 登录**：支持 Steam Guard 验证码、手机确认和可选的登录状态保存。
+- **下载队列**：通过工坊 ID、工坊链接或清单添加模组，逐项显示状态、进度和实时速度。
+- **任务操作**：每行提供开始 / 继续、暂停、取消、删除；支持对勾选任务批量操作。
+- **文件复用**：校验并复用已有文件和下载缓存，失败后支持重试。
+- **自选目录**：统一保存为 `@模组名`，不附加 `_ID`；一键打开下载目录。
+- **简洁界面**：参考 [Geist](https://vercel.com/geist/introduction) 的中性色与细边框，提供沉浸式圆角窗口、亮暗主题和可折叠的黑底绿字日志面板。
 
-支持 Windows 11 x64、Windows Server 2019 x64 **Desktop Experience（带桌面）**。无图形桌面的 Server Core 不适用。仅在当前开发机测试过界面与离线引擎通信，真实 Steam 登录、账号权限、下载速度及 Server 2019 实机兼容性仍需实际验证。
+## 系统要求
 
-## 下载行为
+| 项目 | 要求 |
+| --- | --- |
+| 操作系统 | Windows 11 x64，或 Windows Server 2019 x64 Desktop Experience（带桌面） |
+| 运行环境 | [.NET 10 Desktop Runtime x64](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) |
+| Steam 账号 | 能够访问目标 DayZ 创意工坊内容的账号 |
+| 存储空间 | 程序、运行时及所下载模组所需空间 |
 
-- 下载前读取工坊真实名称，统一保存到 `@模组名`（例如 `@CF`），不追加 `_ID`，手动输入 ID 和导入清单使用相同规则。
-- 如果新目录不存在，会在开始下载时将同 ID 的旧 `@模组名_ID` 文件夹改名并复用已有内容；新旧目录同时存在时不自动合并。目录内保存 `.bk-workshop-id` 以识别同名冲突，避免不同模组写入同一个文件夹。
-- 保存目录可以修改。默认是程序目录下的 `Downloads`；不会自动部署到服务器 `Mods`，也不会修改 `keys` 或启动配置。
-- 支持导入 `模组名 ID`、纯数字 ID、带/不带模组名前缀的 SteamCMD 清单，默认不全部勾选。重复 ID 去重，ID 为 0 的条目跳过。仓库附带通用 `ModList.example.txt`；本机可另存 `ModList.txt` 使用自己的清单，该文件不提交到 Git。
-- 一个登录会话顺序处理多个模组。块并发控制一个模组同时下载的数据块数量，不表示同时下载多个模组。
-- 显示当前模组的字节进度、每秒采样的压缩传输速率、队列完成数量和日志。速度不包含网络协议开销。校验、读取清单或等待登录时可能显示 0 B/s，整体耗时不只包括传输。
-- 进度表示已处理的未压缩文件数据，包含检查通过的本地数据；断点检查或校验阶段可以跳变。旧式单文件 HTTP 下载也提供速度；若远端没有提供总长度，则只显示不确定进度。
-- 默认校验本地文件。保留 `.DepotDownloader` 中的清单和必要的暂存数据，以复用已完成文件/数据块；不能承诺断网后所有数据都无损续传。
-- 引擎有自身网络重连处理。下载返回失败时，客户端可等待 30 秒后重试，最多重试 3 次；失败项也可通过行内下载按钮重试。单项取消后继续处理下一项，保留登录会话和已有文件。
-- 暂停会停止安排新的文件/数据块，Steam 会话继续运行；已经在途的数据块可能仍会结束。点击该行下载图标或批量开始按钮继续。当前任务暂停时，单引擎会等待其继续或取消，随后处理后续任务。取消可能需要等待在途请求结束，状态显示“取消中”。
-- 若保存位置位于带 `DayZServer_x64.exe` 的服务器目录下，且检测到 DayZ 服务器进程正在运行，则拒绝开始下载；建议使用独立目录，停服后自行部署。
+目标机器只需安装 **Desktop Runtime**，无需安装 .NET SDK。Windows Server Core 不支持此 WPF 图形界面。
+
+目前已进行开发机界面与离线引擎通信验证；真实账号登录、完整网络下载流程以及 Windows Server 2019 实机兼容性仍需进一步验证。
+
+## 快速开始
+
+仓库提供源码；可按下文构建生成运行包。
+
+1. 将发布生成的 `publish/win-x64` **整个文件夹**复制到目标机器的可写目录，保留其中的 `Engine` 子目录。
+2. 安装 .NET 10 Desktop Runtime x64，双击 `BKDayzModDownloader.exe`。也可运行 `Start.bat` 检查运行时。
+3. 输入自己的 Steam 账号，按提示完成 Steam Guard 验证或手机确认。
+4. 登录后，在右上角“下载设置”中选择保存目录。
+5. 点击右下角悬浮 `＋`，输入模组 ID 或工坊链接，选择“加入队列”或“添加并下载”。
+6. 使用行内按钮管理单项任务，或勾选多项后使用底部批量操作按钮。
+
+“导入清单”位于队列右上角；右上角“日志”可展开或收起日志面板；右下角“打开下载目录”可直接查看文件。
+
+## 批量导入
+
+支持 `模组名 ID`、纯数字 ID，以及带或不带模组名前缀的 SteamCMD 下载命令清单。例如：
+
+```text
+CF 1559212036
+Dabs Framework 2545327648
+1828439124
+```
+
+工坊链接示例：
+
+```text
+https://steamcommunity.com/sharedfiles/filedetails/?id=1559212036
+```
+
+同一 ID 自动去重，ID 为 `0` 的条目跳过。导入后按需勾选，再点击底部开始按钮。
+
+仓库附带 [ModList.example.txt](ModList.example.txt)。可以在项目根目录另存自己的 `ModList.txt`；构建时优先使用该文件，否则使用示例清单。个人清单已加入 Git 忽略规则。
+
+## 下载与文件管理
+
+### 目录
+
+默认保存到程序旁的 `Downloads`，可以在设置中修改。程序会读取工坊名称，例如将 CF 保存为 `Downloads/@CF`，不会自动部署到服务器 `Mods`，也不会修改 `keys` 或服务器启动配置。
+
+如果新目录不存在，程序会尝试将同 ID 的旧 `@模组名_ID` 目录改名并复用；新旧目录同时存在时不自动合并。目录中的 `.bk-workshop-id` 用于识别模组，避免同名模组混写。
+
+若目标位置位于带 `DayZServer_x64.exe` 的服务器目录下，且检测到 DayZ 服务器进程正在运行，程序会拒绝开始下载。建议先下载到独立目录，停服后自行部署。
+
+### 队列、暂停与重试
+
+- 一个登录会话顺序处理模组；设置中的块并发表示**单个模组的数据块并发数**。
+- 暂停停止安排新的文件和数据块，在途请求可能继续完成。暂停中的当前任务会等待继续或取消，然后处理后续任务。
+- 取消保留已下载文件和登录会话，随后继续下一项；等待在途请求结束时会显示“取消中”。
+- 删除只移除队列任务，不删除磁盘文件；正在下载的任务会先取消。
+- 引擎包含网络重连处理。启用失败重试时，下载返回失败后等待 30 秒，最多重试 3 次；也可通过行内按钮手动重试。
+- 保留 `.DepotDownloader` 清单与暂存数据可帮助续传。不同失败阶段的恢复效果可能不同，不能保证所有在途数据都得到保留。
+
+### 进度与速度
+
+进度按已处理的未压缩文件数据计算，包含校验通过的本地数据，因此校验缓存时进度可能跳变。速度按压缩传输数据采样，不包含网络协议开销；读取元数据、校验文件或等待验证时可能显示 `0 B/s`。远端未提供总长度的下载会显示不确定进度。
 
 ## 登录与本地数据
 
-- 密码不进入命令行、配置或日志，仅通过客户端与引擎的私有标准输入管道传递。
-- 只有勾选“记住登录状态”才保存登录令牌；使用 Windows DPAPI 按当前 Windows 用户加密，不保存明文密码。
-- 配置和日志位置：`%LOCALAPPDATA%\BKTools\BKDayzModDownloader`。
-- 登录状态失效时，点击登录页“清除保存的登录状态”后重新登录。
-- 日志单文件超过 4 MiB 时轮换，仅保留当前及上一份；配置不包含下载状态和密码。
+密码不写入命令行、配置或日志，仅通过界面与引擎之间的标准输入管道传递。勾选“记住登录状态”后才保存令牌，使用 Windows DPAPI 按当前 Windows 用户加密，不保存明文密码。
 
-## 开发和发布
+配置与日志位于：
 
-开发机需要 .NET 10 SDK。NuGet 依赖固定版本，并还原到项目内 `.packages`。
+```text
+%LOCALAPPDATA%\BKTools\BKDayzModDownloader
+```
+
+登录失效时，可在登录页清除已保存的登录状态后重试。日志超过 4 MiB 时轮换，保留当前和上一份；下载队列运行状态不持久化。
+
+## 从源码构建
+
+开发需要 Windows、[.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)；发布脚本还需要 PowerShell 7。上游源码已随仓库提供，无需额外初始化子模块。
 
 ```powershell
+git clone https://github.com/binbinku/BKDayzModDownloader.git
+cd BKDayzModDownloader
+
+# 还原依赖并构建
 dotnet build src/BKDayzModDownloader/BKDayzModDownloader.csproj -c Release
+
+# 运行离线验证
 dotnet run --project tests/BKDownloader.Tests/BKDownloader.Tests.csproj -c Release -- src/BKDownloader.Engine/bin/Release/net10.0-windows/BKDownloader.Engine.exe
+
+# 生成 win-x64 发布目录与压缩包
 pwsh -File .\publish.ps1
 ```
 
-发布脚本需要 PowerShell 7。目标服务器直接运行发布程序即可。
+输出目录为 `publish/win-x64`，压缩包为 `publish/BKDayzModDownloader-win-x64.zip`。发布采用依赖运行时的方式，不捆绑 .NET Runtime；包内包含许可证、第三方声明及对应源码。
 
-`BKDayzModDownloader.exe --preview` 是无 Steam 连接的下载页布局预览，包含明确标记的示例进度，不保存配置或写入日志，不能用于实际下载。引擎 `--self-test` 是离线通信验证，不会连接 Steam。
+NuGet 依赖使用固定版本，还原到项目内 `.packages`。发布时请检查随包的 `ModList.txt` 是否为准备公开的清单。下载目录、构建缓存、登录状态和日志不应提交到仓库。
 
-## 代码结构
+开发辅助入口：
 
-- `src/BKDayzModDownloader`：WPF 登录页、下载页、队列管理、引擎进程通信。
-- `src/BKDownloader.Core`：清单导入、配置、通信协议与目标目录检查。
-- `src/BKDownloader.Engine`：.NET 10 下载进程、GUI 身份验证适配、加密令牌存储。
-- `vendor/DepotDownloader`：完整上游源码，固定到 `c553ef4d60c00a4f5fd16c9fe017f569001589ff`。
-- `tests/BKDownloader.Tests`：无需第三方测试框架的离线验证程序。
+- `BKDayzModDownloader.exe --preview`：离线预览下载界面，显示明确标记的示例数据，不连接 Steam、不保存配置或日志。
+- `BKDownloader.Engine.exe --self-test`：离线通信验证，不连接 Steam。
 
-发布包中附带对应源码压缩包、许可证和第三方声明。项目基于 GPL-2.0 上游源码，分发时保留这些文件。
+## 项目结构
+
+```text
+src/
+  BKDayzModDownloader/    WPF 界面、队列管理与引擎通信
+  BKDownloader.Core/     清单解析、配置、协议与目录检查
+  BKDownloader.Engine/   下载引擎入口、身份验证与会话适配
+tests/
+  BKDownloader.Tests/    离线验证程序
+vendor/
+  DepotDownloader/       固定版本的上游源码及本地修改
+```
+
+DepotDownloader 固定到提交 `c553ef4d60c00a4f5fd16c9fe017f569001589ff`。适配内容与依赖许可证见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
+
+## 参与贡献
+
+欢迎提交 [Issue](https://github.com/binbinku/BKDayzModDownloader/issues) 或 Pull Request。报告问题时请提供操作系统、程序版本、复现步骤和脱敏日志；请勿公开密码、登录令牌或验证码。
+
+修改下载逻辑后，请运行离线验证，并说明是否完成真实下载测试；修改界面时，建议附上亮色和暗色主题截图。提交的原创代码沿用所属目录的许可证。
+
+## 许可证
+
+本项目保留上游授权，并对原创部分提供 MIT 授权：
+
+- **MIT**：原创 WPF 界面、Core 通用模块、测试代码，以及项目原创文档和构建脚本，见 [LICENSE-MIT](LICENSE-MIT)。
+- **GPL-2.0**：DepotDownloader 源码、下载引擎适配代码，以及当前包含该引擎的整合分发包，见 [LICENSE](LICENSE)。
+- 第三方依赖继续适用各自许可证，见 [第三方声明](THIRD-PARTY-NOTICES.md)。
+
+MIT 授权不覆盖或替换 DepotDownloader 的 GPL 授权，不能将当前完整程序标注为“仅 MIT”。完整范围与再分发说明见 [LICENSING.md](LICENSING.md)。
+
+感谢 [SteamRE](https://github.com/SteamRE) 及相关开源项目。本项目为非官方工具，与 Valve、Steam 或 Bohemia Interactive 无隶属关系。

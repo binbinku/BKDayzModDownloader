@@ -1,6 +1,6 @@
 # Third-party components
 
-BK DayZ Mod Downloader is derived from DepotDownloader and distributed under GPL-2.0; see LICENSE. Corresponding application and modified engine source is included in Source/BKDayzModDownloader-source.zip in the binary distribution.
+The BK DayZ Mod Downloader engine is derived from DepotDownloader. The current combined application is distributed under GPL-2.0; see LICENSE. Original UI, Core, tests, documentation and build scripts are additionally available under MIT within the scope defined in LICENSING.md; see LICENSE-MIT. This MIT grant does not replace the licenses of the engine or third-party components. Corresponding application and modified engine source is included in Source/BKDayzModDownloader-source.zip in the binary distribution.
 
 ## DepotDownloader
 
