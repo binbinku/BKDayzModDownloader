@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
+    <AssemblyName>BKDownloader.Engine</AssemblyName><Nullable>disable</Nullable>
+    <TargetPlatformMoniker>Windows,Version=7.0</TargetPlatformMoniker>
+    <NoWarn>$(NoWarn);CS8632</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../BKDownloader.Core/BKDownloader.Core.csproj" />
+    <Compile Include="../../vendor/DepotDownloader/DepotDownloader/*.cs"
+      Exclude="../../vendor/DepotDownloader/DepotDownloader/Program.cs;../../vendor/DepotDownloader/DepotDownloader/ConsoleAuthenticator.cs;../../vendor/DepotDownloader/DepotDownloader/AccountSettingsStore.cs;../../vendor/DepotDownloader/DepotDownloader/PlatformUtilities.cs;../../vendor/DepotDownloader/DepotDownloader/Ansi.cs;../../vendor/DepotDownloader/DepotDownloader/AnsiDetector.cs" />
+    <PackageReference Include="protobuf-net" Version="3.2.52" />
+    <PackageReference Include="QRCoder" Version="1.6.0" />
+    <PackageReference Include="SteamKit2" Version="3.2.0" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.0" />
+  </ItemGroup>
+</Project>

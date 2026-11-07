@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF><AssemblyName>BKDayzModDownloader</AssemblyName>
+    <TargetPlatformMoniker>Windows,Version=7.0</TargetPlatformMoniker>
+    <Version>0.1.0</Version>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../BKDownloader.Core/BKDownloader.Core.csproj" />
+    <ProjectReference Include="../BKDownloader.Engine/BKDownloader.Engine.csproj" ReferenceOutputAssembly="false" />
+    <Content Include="../../ModList.txt" Condition="Exists('../../ModList.txt')" Link="ModList.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../ModList.example.txt" Condition="!Exists('../../ModList.txt')" Link="ModList.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CopyEngine" AfterTargets="Build">
+    <ItemGroup><EngineFiles Include="../BKDownloader.Engine/bin/$(Configuration)/net10.0-windows/**/*" Exclude="../BKDownloader.Engine/bin/$(Configuration)/net10.0-windows/**/*.pdb" /></ItemGroup>
+    <Copy SourceFiles="@(EngineFiles)" DestinationFiles="@(EngineFiles->'$(OutDir)Engine/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+</Project>
